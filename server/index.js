@@ -4,20 +4,47 @@ import cors from "cors";
 import UserModel from "./Models/UserModel.js";
 import bcrypt from "bcrypt";
 import PostModel from "./Models/Posts.js";
+import * as ENV from "./config.js";
 
+/*
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 //Database connection
+
+
 const connectString =
-  "mongodb+srv://admin:admin@cluster0.2gmoemc.mongodb.net/postITDb?retryWrites=true&w=majority&appName=Cluster0";
+//"mongodb+srv://admin:admin@cluster0.2gmoemc.mongodb.net/postITDp?retryWrites=true&w=majority&appName=Cluster0"
+`mongodb+srv://${ENV.DB_USER}:${ENV.DB_PASSWORD}@${ENV.DB_CLUSTER}/${ENV.DB_NAME}?r
+etryWrites=true&w=majority&appName=Cluster0`;
 
 mongoose.connect(connectString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+*/
 
+const app = express();
+
+// CORS middleware
+const corsOptions = {
+  origin: ENV.CLIENT_URL,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use(express.json());
+
+const connectString = `mongodb+srv://${ENV.DB_USER}:${ENV.DB_PASSWORD}@${ENV.DB_CLUSTER}/${ENV.DB_NAME}?retryWrites=true&w=majority`;
+
+// Connect to MongoDB
+mongoose
+  .connect(connectString)
+  .then(() => console.log("✅ MongoDB connected successfully!"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  
 app.post("/registerUser", async (req, res) => {
   try {
     const name = req.body.name;
@@ -142,6 +169,12 @@ app.put("/likePost/:postId/", async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log("You are connected");
+//app.listen(3001, () => {
+  //console.log("You are connected");
+//});
+
+const port = ENV.PORT || 3001;
+app.listen(port, () => {
+console.log(`You are connected at port: ${port}`);
 });
+
